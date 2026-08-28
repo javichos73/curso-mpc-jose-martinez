@@ -1,0 +1,19 @@
+[project]
+name = "curso-mcp-jose-martinez"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jose Martinez", email = "jose.martinez@unl.edu.ec" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+curso-mcp-jose-martinez = "curso_mcp_jose_martinez:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
