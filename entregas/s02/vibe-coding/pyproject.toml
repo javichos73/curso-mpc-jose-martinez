@@ -1,5 +1,5 @@
 [project]
-name = "curso-mcp-jose-martinez"
+name = "vibe-coding"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -7,20 +7,16 @@ authors = [
     { name = "Jose Martinez", email = "jose.martinez@unl.edu.ec" }
 ]
 requires-python = ">=3.12"
-dependencies = [
-    "google-genai>=2.20.0",
-    "python-dotenv>=1.2.3",
-    "rich>=15.0.0",
-]
+dependencies = []
 
 [project.scripts]
-curso-mcp-jose-martinez = "curso_mcp_jose_martinez:main"
+vibe-coding = "vibe_coding:main"
 
 [build-system]
 requires = ["uv_build>=0.12.7,<0.13.0"]
 build-backend = "uv_build"
 
-[tool.uv.workspace]
-members = [
-    "entregas/s02/vibe-coding",
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
 ]

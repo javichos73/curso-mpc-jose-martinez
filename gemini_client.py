@@ -1,4 +1,4 @@
-"""Calls Gemini with a system instruction and explicit generation parameters."""
+"""In-memory conversation history — the model 'remembers' because we resend it."""
 
 import os
 
@@ -11,39 +11,35 @@ load_dotenv()
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 MODEL = "gemini-2.5-flash"
+SYSTEM_INSTRUCTION = "Eres un asistente breve. Respondes en español."
 
-SYSTEM_INSTRUCTION = (
-    "Eres un instructor de programación para principiantes. "
-    "Respondes en español, máximo 3 frases. "
-    "Sin jerga sin explicar, sin inventar funciones."
-)
-CONTEXT_WINDOW_LIMIT = 1_048_576  # gemini-2.5-flash
+# List of plain dicts, same shape as `contents` — nothing hidden here.
+history: list[dict] = []
 
-def print_budget(contents: list[dict]) -> None:
-    tokens = client.models.count_tokens(model=MODEL, contents=contents)
-    used_ratio = tokens.total_tokens / CONTEXT_WINDOW_LIMIT
-    print(f"Historial: {tokens.total_tokens} tokens ({used_ratio:.4%} de la ventana)")
 
-def ask(prompt: str, temperature: float = 1.3) -> tuple[str, str]:
-    """Returns (text, finish_reason)."""
+def send(message: str) -> str:
+    history.append({"role": "user", "parts": [{"text": message}]})
+
     response = client.models.generate_content(
         model=MODEL,
-        contents=[{"role": "user", "parts": [{"text": prompt}]}],
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTION,
-            temperature=temperature,
-            max_output_tokens=400,
-        ),
+        contents=history,
+        config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION),
     )
-    finish_reason = str(response.candidates[0].finish_reason)
-    if "MAX_TOKENS" in finish_reason:
-        print("[warning] La respuesta viene truncada por max_output_tokens.")
-    return response.text, finish_reason
+
+    history.append({"role": "model", "parts": [{"text": response.text}]})
+    return response.text
 
 
 def main() -> None:
-    text, _ = ask("¿Qué opinas de var en JS?")
-    print(text)
+    # 8 turns: the fact goes in turn 1, and gets asked back at turn 8.
+    print(send("Me llamo Alex y mi color favorito es el verde."))
+    print(send("¿Qué framework de Python vimos en la Clase 1?"))
+    print(send("Dame un ejemplo de dato que no cabe en un int."))
+    print(send("¿Qué hace el comando uv init?"))
+    print(send("Explica en una frase qué es un token."))
+    print(send("¿Qué significa que una API sea stateless?"))
+    print(send("¿Para qué sirve un archivo .env?"))
+    print(send("¿Cómo me llamo y cuál es mi color favorito?"))
 
 
 if __name__ == "__main__":

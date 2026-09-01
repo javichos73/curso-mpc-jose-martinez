@@ -19,3 +19,5 @@ dist/
 # Local test data
 *.sqlite3
 *.db
+
+.antigravitycli
